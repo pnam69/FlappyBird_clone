@@ -1,2 +1,32 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# Unity generated
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+
+# Visual Studio / Rider
+.vs/
+.vscode/
+*.csproj
+*.sln
+*.user
+*.userprefs
+*.pidb
+*.booproj
+
+# Unity meta cache
+*.pidb.meta
+*.pdb.meta
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Plastic SCM
+.plastic/
+
+# Ignore ignore.conf if you don't need it
+ignore.conf
