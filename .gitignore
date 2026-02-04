@@ -1,0 +1,23 @@
+# Unity generated
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+
+# IDEs
+.vs/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Plastic SCM
+.plastic/
+
+# Rider / VS junk
+*.csproj.user
+*.pidb
+*.booproj
+
