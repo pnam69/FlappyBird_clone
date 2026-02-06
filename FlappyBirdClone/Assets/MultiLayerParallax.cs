@@ -88,17 +88,16 @@ public class MultiLayerParallax : MonoBehaviour
             obj.transform.position += Vector3.left * speed;
         }
         
-        // Check for looping after all objects have moved
+        // Check for looping - find the rightmost sprite position
         float rightmostX = GetRightmostXInLayer(layer);
-        float leftmostX = GetLeftmostXInLayer(layer);
         
+        // Check each object - if it's too far left, teleport it to the right
         foreach (GameObject obj in layer.layerObjects)
         {
             if (obj == null) continue;
             
-            // If this object is the leftmost and it's far enough left, teleport it to the right
-            if (obj.transform.position.x <= leftmostX && 
-                obj.transform.position.x < rightmostX - layer.layerWidth)
+            // If this sprite is a full width behind the rightmost sprite, teleport it
+            if (obj.transform.position.x < rightmostX - layer.layerWidth)
             {
                 obj.transform.position = new Vector3(
                     rightmostX + layer.layerWidth,
@@ -124,22 +123,5 @@ public class MultiLayerParallax : MonoBehaviour
         }
         
         return rightmostX;
-    }
-
-    float GetLeftmostXInLayer(ParallaxLayer layer)
-    {
-        float leftmostX = float.MaxValue;
-        
-        foreach (GameObject obj in layer.layerObjects)
-        {
-            if (obj == null) continue;
-            
-            if (obj.transform.position.x < leftmostX)
-            {
-                leftmostX = obj.transform.position.x;
-            }
-        }
-        
-        return leftmostX;
     }
 }
