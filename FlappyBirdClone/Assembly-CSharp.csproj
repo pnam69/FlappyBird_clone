@@ -65,6 +65,7 @@
     <Compile Include="Assets\LogicScript.cs" />
     <Compile Include="Assets\TriggerScript.cs" />
     <Compile Include="Assets\PipeSpawner.cs" />
+    <Compile Include="Assets\MultiLayerParallax.cs" />
     <Compile Include="Assets\PipeMove.cs" />
   </ItemGroup>
   <ItemGroup>

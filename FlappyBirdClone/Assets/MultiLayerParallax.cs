@@ -22,7 +22,7 @@ public class MultiLayerParallax : MonoBehaviour
     
     [Header("Respawn Settings")]
     [Tooltip("Respawn when sprite is this far left")]
-    public float despawnX = -30f;
+    public float despawnX = -26f;
     
     [Tooltip("Gap between sprites when respawning (negative for overlap)")]
     public float respawnGap = 0f;

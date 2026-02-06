@@ -6,7 +6,7 @@ public class PipeMove : MonoBehaviour
     public float moveSpeed = 10.0f;
     
     [Header("Cleanup")]
-    public float deadZoneX = -15f;
+    public float deadZoneX = -35f;
     
     private LogicScript logic;
 

@@ -12,10 +12,10 @@ TagManager:
   - Bird
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
+  - Sky
+  - Cloud
+  - Cloud2
+  - Cloud3
   - 
   - 
   - 
@@ -41,6 +41,24 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Sky
+    uniqueID: 1065853507
+    locked: 0
+  - name: Cloud
+    uniqueID: 2131074253
+    locked: 0
+  - name: Cloud2
+    uniqueID: 3715859655
+    locked: 0
+  - name: Cloud3
+    uniqueID: 831304531
+    locked: 0
+  - name: Bird
+    uniqueID: 3527994897
+    locked: 0
+  - name: Pipe
+    uniqueID: 2110731351
     locked: 0
   m_RenderingLayers:
   - Default
