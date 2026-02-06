@@ -12,8 +12,6 @@ public class MultiLayerParallax : MonoBehaviour
         public GameObject[] layerObjects;
         
         public float scrollSpeed = 1.0f;
-        
-        [HideInInspector] public float layerWidth;
     }
     
     [Header("Parallax Layers")]
@@ -22,40 +20,27 @@ public class MultiLayerParallax : MonoBehaviour
     [Header("Settings")]
     public float globalSpeedMultiplier = 1.0f;
     
+    [Header("Respawn Settings")]
+    [Tooltip("How far off screen (left) before respawning")]
+    public float despawnOffset = 2f;
+    
     private LogicScript logic;
     private bool isGameOver = false;
+    private Camera mainCamera;
+    private float cameraLeftEdge;
 
     void Start()
     {
+        mainCamera = Camera.main;
+        if (mainCamera == null)
+        {
+            Debug.LogError("Main Camera not found!");
+        }
+        
         GameObject logicObject = GameObject.FindGameObjectWithTag("Logic");
         if (logicObject != null)
         {
             logic = logicObject.GetComponent<LogicScript>();
-        }
-        
-        InitializeLayers();
-    }
-
-    void InitializeLayers()
-    {
-        foreach (ParallaxLayer layer in layers)
-        {
-            if (layer.layerObjects != null && layer.layerObjects.Length > 0)
-            {
-                GameObject firstObject = layer.layerObjects[0];
-                if (firstObject != null)
-                {
-                    SpriteRenderer spriteRenderer = firstObject.GetComponent<SpriteRenderer>();
-                    if (spriteRenderer != null)
-                    {
-                        layer.layerWidth = spriteRenderer.bounds.size.x;
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"Layer object {firstObject.name} doesn't have a SpriteRenderer!");
-                    }
-                }
-            }
         }
     }
 
@@ -69,9 +54,25 @@ public class MultiLayerParallax : MonoBehaviour
         
         if (isGameOver) return;
         
+        UpdateCameraEdge();
+        
         foreach (ParallaxLayer layer in layers)
         {
             MoveLayer(layer);
+        }
+    }
+
+    void UpdateCameraEdge()
+    {
+        if (mainCamera != null)
+        {
+            float cameraHeight = mainCamera.orthographicSize * 2f;
+            float cameraWidth = cameraHeight * mainCamera.aspect;
+            cameraLeftEdge = mainCamera.transform.position.x - (cameraWidth / 2f);
+        }
+        else
+        {
+            cameraLeftEdge = -10f;
         }
     }
 
@@ -81,26 +82,34 @@ public class MultiLayerParallax : MonoBehaviour
         
         float speed = layer.scrollSpeed * globalSpeedMultiplier * Time.deltaTime;
         
-        // Move all objects
-        foreach (GameObject obj in layer.layerObjects)
-        {
-            if (obj == null) continue;
-            obj.transform.position += Vector3.left * speed;
-        }
-        
-        // Check for looping - find the rightmost sprite position
-        float rightmostX = GetRightmostXInLayer(layer);
-        
-        // Check each object - if it's too far left, teleport it to the right
         foreach (GameObject obj in layer.layerObjects)
         {
             if (obj == null) continue;
             
-            // If this sprite is a full width behind the rightmost sprite, teleport it
-            if (obj.transform.position.x < rightmostX - layer.layerWidth)
+            // Move sprite
+            obj.transform.position += Vector3.left * speed;
+            
+            // Get sprite's right edge
+            SpriteRenderer spriteRenderer = obj.GetComponent<SpriteRenderer>();
+            float spriteRightEdge = obj.transform.position.x;
+            
+            if (spriteRenderer != null)
             {
+                spriteRightEdge = obj.transform.position.x + (spriteRenderer.bounds.size.x / 2f);
+            }
+            
+            // If sprite's right edge has passed the left edge of camera, respawn it
+            if (spriteRightEdge < cameraLeftEdge - despawnOffset)
+            {
+                // Find the rightmost sprite in this layer
+                float rightmostEdge = GetRightmostEdgeInLayer(layer);
+                
+                // Get this sprite's width
+                float spriteWidth = spriteRenderer != null ? spriteRenderer.bounds.size.x : 20f;
+                
+                // Position it right after the rightmost sprite
                 obj.transform.position = new Vector3(
-                    rightmostX + layer.layerWidth,
+                    rightmostEdge + (spriteWidth / 2f),
                     obj.transform.position.y,
                     obj.transform.position.z
                 );
@@ -108,20 +117,28 @@ public class MultiLayerParallax : MonoBehaviour
         }
     }
 
-    float GetRightmostXInLayer(ParallaxLayer layer)
+    float GetRightmostEdgeInLayer(ParallaxLayer layer)
     {
-        float rightmostX = float.MinValue;
+        float rightmostEdge = float.MinValue;
         
         foreach (GameObject obj in layer.layerObjects)
         {
             if (obj == null) continue;
             
-            if (obj.transform.position.x > rightmostX)
+            SpriteRenderer spriteRenderer = obj.GetComponent<SpriteRenderer>();
+            float objRightEdge = obj.transform.position.x;
+            
+            if (spriteRenderer != null)
             {
-                rightmostX = obj.transform.position.x;
+                objRightEdge = obj.transform.position.x + (spriteRenderer.bounds.size.x / 2f);
+            }
+            
+            if (objRightEdge > rightmostEdge)
+            {
+                rightmostEdge = objRightEdge;
             }
         }
         
-        return rightmostX;
+        return rightmostEdge;
     }
 }
