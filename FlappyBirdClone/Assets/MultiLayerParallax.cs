@@ -5,9 +5,14 @@ public class MultiLayerParallax : MonoBehaviour
     [System.Serializable]
     public class ParallaxLayer
     {
-        public GameObject layerObject;
+        [Tooltip("Parent GameObject containing all sprites for this layer")]
+        public GameObject layerParent;
+        
+        [Tooltip("All GameObjects (sprites) in this layer - add duplicates here")]
+        public GameObject[] layerObjects;
+        
         public float scrollSpeed = 1.0f;
-        [HideInInspector] public Vector3 startPosition;
+        
         [HideInInspector] public float layerWidth;
     }
     
@@ -15,8 +20,8 @@ public class MultiLayerParallax : MonoBehaviour
     public ParallaxLayer[] layers;
     
     [Header("Settings")]
-    public bool useGameSpeed = true;
     public float globalSpeedMultiplier = 1.0f;
+    public float resetThreshold = -20f;
     
     private LogicScript logic;
     private bool isGameOver = false;
@@ -36,14 +41,20 @@ public class MultiLayerParallax : MonoBehaviour
     {
         foreach (ParallaxLayer layer in layers)
         {
-            if (layer.layerObject != null)
+            if (layer.layerObjects != null && layer.layerObjects.Length > 0)
             {
-                layer.startPosition = layer.layerObject.transform.position;
-                
-                SpriteRenderer spriteRenderer = layer.layerObject.GetComponent<SpriteRenderer>();
-                if (spriteRenderer != null)
+                GameObject firstObject = layer.layerObjects[0];
+                if (firstObject != null)
                 {
-                    layer.layerWidth = spriteRenderer.bounds.size.x;
+                    SpriteRenderer spriteRenderer = firstObject.GetComponent<SpriteRenderer>();
+                    if (spriteRenderer != null)
+                    {
+                        layer.layerWidth = spriteRenderer.bounds.size.x;
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"Layer object {firstObject.name} doesn't have a SpriteRenderer!");
+                    }
                 }
             }
         }
@@ -61,25 +72,46 @@ public class MultiLayerParallax : MonoBehaviour
         
         foreach (ParallaxLayer layer in layers)
         {
-            if (layer.layerObject != null)
-            {
-                MoveLayer(layer);
-            }
+            MoveLayer(layer);
         }
     }
 
     void MoveLayer(ParallaxLayer layer)
     {
-        float speed = layer.scrollSpeed * globalSpeedMultiplier * Time.deltaTime;
-        layer.layerObject.transform.position += Vector3.left * speed;
+        if (layer.layerObjects == null || layer.layerObjects.Length == 0) return;
         
-        if (layer.layerObject.transform.position.x <= layer.startPosition.x - layer.layerWidth)
+        float speed = layer.scrollSpeed * globalSpeedMultiplier * Time.deltaTime;
+        
+        foreach (GameObject obj in layer.layerObjects)
         {
-            layer.layerObject.transform.position = new Vector3(
-                layer.startPosition.x,
-                layer.layerObject.transform.position.y,
-                layer.layerObject.transform.position.z
-            );
+            if (obj == null) continue;
+            
+            obj.transform.position += Vector3.left * speed;
+            
+            if (obj.transform.position.x < resetThreshold)
+            {
+                float rightmostX = GetRightmostXInLayer(layer);
+                obj.transform.position = new Vector3(
+                    rightmostX + layer.layerWidth,
+                    obj.transform.position.y,
+                    obj.transform.position.z
+                );
+            }
         }
+    }
+
+    float GetRightmostXInLayer(ParallaxLayer layer)
+    {
+        float rightmostX = float.MinValue;
+        
+        foreach (GameObject obj in layer.layerObjects)
+        {
+            if (obj != null && obj.transform.position.x > rightmostX)
+            {
+                rightmostX = obj.transform.position.x;
+            }
+        }
+        
+        return rightmostX;
     }
 }

@@ -44,45 +44,117 @@ I've added two parallax scripts to your project:
 ### Setup Steps:
 
 1. **Create Multiple Background Layers**
-   - Create 2-3 Sprite GameObjects:
-     - "Background_Sky" (furthest, slowest)
-     - "Background_Mountains" (middle layer)
-     - "Background_Ground" (closest, fastest)
    
-2. **Position Layers**
-   - Sky: X=0, Y=0, Z=10
-   - Mountains: X=0, Y=-2, Z=9
-   - Ground: X=0, Y=-4, Z=8
-   - Scale each to fill camera width
+   For each layer (Sky, Mountains, Ground, etc.):
+   
+   a. Create a **Parent Empty GameObject**:
+      - Right-click Hierarchy → Create Empty
+      - Name it: "Layer_Sky", "Layer_Mountains", "Layer_Ground"
+   
+   b. Create **Sprite Children** (2 or more for seamless loop):
+      - Right-click parent → 2D Object → Sprite
+      - Name them: "Sky_1", "Sky_2"
+      - Assign your background texture
+   
+   c. Position sprites side-by-side:
+      - Sky_1: X=0, Y=0
+      - Sky_2: X=(sprite width), Y=0
+      - **Important**: They must touch perfectly with no gaps!
 
-3. **Duplicate for Seamless Loop**
-   - Duplicate each layer (Ctrl+D)
-   - Position duplicate EXACTLY to the right of original
-   - Example: If sprite width is 20 units, place at X=20
+2. **Position Layer Parents**
+   - Layer_Sky: X=0, Y=0, Z=10 (furthest back)
+   - Layer_Mountains: X=0, Y=-2, Z=9
+   - Layer_Ground: X=0, Y=-4, Z=8 (closest)
 
-4. **Add Multi-Layer Script**
+3. **Add Multi-Layer Script**
    - Create an Empty GameObject: "ParallaxManager"
    - Add Component → `MultiLayerParallax`
-   - Set Layers array size to 3
+   - Set **Layers array size** to 3 (or however many layers you have)
 
-5. **Configure Each Layer**
+4. **Configure Each Layer**
+   
+   **Example with 3 layers:**
+   
    ```
    Layer 0 (Sky):
-   - Layer Object: Background_Sky
+   - Layer Parent: Layer_Sky (optional, can leave empty)
+   - Layer Objects: Size = 2
+     - Element 0: Sky_1
+     - Element 1: Sky_2
    - Scroll Speed: 0.5
    
    Layer 1 (Mountains):
-   - Layer Object: Background_Mountains
+   - Layer Parent: Layer_Mountains
+   - Layer Objects: Size = 2
+     - Element 0: Mountains_1
+     - Element 1: Mountains_2
    - Scroll Speed: 1.5
    
    Layer 2 (Ground):
-   - Layer Object: Background_Ground
+   - Layer Parent: Layer_Ground
+   - Layer Objects: Size = 3 (you can have different amounts!)
+     - Element 0: Ground_1
+     - Element 1: Ground_2
+     - Element 2: Ground_3
    - Scroll Speed: 3.0
    ```
 
-6. **Adjust Settings**
-   - Global Speed Multiplier: `1.0` (increase for faster game)
-   - Use Game Speed: Checked
+5. **Adjust Settings**
+   - Global Speed Multiplier: `1.0`
+   - Reset Threshold: `-20` (when sprite moves this far left, it resets to the right)
+
+### 🎯 Key Points:
+- ✅ **Each layer can have DIFFERENT numbers of objects** (2, 3, 4, etc.)
+- ✅ **Mix and match**: Sky with 2 sprites, mountains with 3, ground with 4
+- ✅ **Automatic looping**: Objects teleport to the right when they move off-screen
+- ✅ **Layer Parent is optional**: Only used for organization
+
+---
+
+## 📐 Visual Setup Example
+
+```
+Hierarchy Structure:
+├── ParallaxManager (MultiLayerParallax script)
+├── Layer_Sky (Empty GameObject - optional parent)
+│   ├── Sky_1 (Sprite at X=0)
+│   └── Sky_2 (Sprite at X=20)  ← duplicate positioned right
+├── Layer_Mountains (Empty GameObject)
+│   ├── Mountains_1 (Sprite at X=0)
+│   └── Mountains_2 (Sprite at X=20)
+└── Layer_Ground (Empty GameObject)
+    ├── Ground_1 (Sprite at X=0)
+    ├── Ground_2 (Sprite at X=20)
+    └── Ground_3 (Sprite at X=40)  ← you can have MORE!
+```
+
+**Inspector Setup for ParallaxManager:**
+```
+MultiLayerParallax Component:
+├── Layers [Array Size: 3]
+│   ├── Element 0 (Sky Layer)
+│   │   ├── Layer Parent: Layer_Sky (optional)
+│   │   ├── Layer Objects [Array Size: 2]
+│   │   │   ├── Element 0: Sky_1
+│   │   │   └── Element 1: Sky_2
+│   │   └── Scroll Speed: 0.5
+│   │
+│   ├── Element 1 (Mountains Layer)
+│   │   ├── Layer Objects [Array Size: 2]
+│   │   │   ├── Element 0: Mountains_1
+│   │   │   └── Element 1: Mountains_2
+│   │   └── Scroll Speed: 1.5
+│   │
+│   └── Element 2 (Ground Layer)
+│       ├── Layer Objects [Array Size: 3]
+│       │   ├── Element 0: Ground_1
+│       │   ├── Element 1: Ground_2
+│       │   └── Element 2: Ground_3
+│       └── Scroll Speed: 3.0
+│
+├── Global Speed Multiplier: 1.0
+└── Reset Threshold: -20
+```
 
 ---
 
@@ -127,13 +199,34 @@ Global Speed Multiplier: 1.0
 - Verify the script is attached and enabled
 - Check that game isn't in Game Over state
 
-### Seams visible (Multi-Layer):
-- Ensure duplicate sprites are positioned exactly at sprite width
-- Check that both originals and duplicates have same scale
-- Layer width is calculated from sprite bounds
+### Seams/Gaps visible (Multi-Layer):
+- **Most common issue**: Sprites aren't positioned correctly
+- Measure your sprite width (select sprite → see Bounds in Inspector)
+- Position second sprite EXACTLY at first sprite's width
+- Example: If bounds.size.x = 19.2, place second sprite at X=19.2
+
+### Objects disappear:
+- Check `Reset Threshold` value (default: -20)
+- If your camera shows X > -20, objects might reset too early
+- Adjust threshold based on camera position
+
+### Objects teleport in view:
+- `Reset Threshold` is too high (sprites reset before leaving screen)
+- Make it more negative (e.g., -25 or -30)
+- Or add more sprites to each layer
+
+### Different layers have different numbers of sprites:
+- ✅ **This is totally fine!** Each layer is independent
+- Sky can have 2 sprites, ground can have 4 sprites
+- Just fill in the correct array size for each layer
+
+### How many sprites do I need per layer?
+- **Minimum**: 2 sprites (for basic looping)
+- **Recommended**: 3 sprites (smoother, less noticeable reset)
+- **Formula**: `Number of sprites = (Camera width / Sprite width) + 1`
 
 ### Too fast/slow:
-- Adjust `parallaxSpeed` or `scrollSpeed` values
+- Adjust `scrollSpeed` values per layer
 - Try `globalSpeedMultiplier` to affect all layers at once
 
 ---
