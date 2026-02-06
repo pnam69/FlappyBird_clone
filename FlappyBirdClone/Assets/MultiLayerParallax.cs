@@ -24,6 +24,9 @@ public class MultiLayerParallax : MonoBehaviour
     [Tooltip("Respawn when sprite is this far left")]
     public float despawnX = -30f;
     
+    [Tooltip("Gap between sprites when respawning (negative for overlap)")]
+    public float respawnGap = 0f;
+    
     private LogicScript logic;
     private bool isGameOver = false;
 
@@ -75,9 +78,11 @@ public class MultiLayerParallax : MonoBehaviour
                 SpriteRenderer spriteRenderer = obj.GetComponent<SpriteRenderer>();
                 float spriteWidth = spriteRenderer != null ? spriteRenderer.bounds.size.x : 20f;
                 
-                // Position it after the rightmost sprite
+                // Position it right after the rightmost sprite
+                // rightmostX is the center of rightmost sprite
+                // Add half of rightmost width + half of this sprite width + gap
                 obj.transform.position = new Vector3(
-                    rightmostX + spriteWidth,
+                    rightmostX + spriteWidth + respawnGap,
                     obj.transform.position.y,
                     obj.transform.position.z
                 );

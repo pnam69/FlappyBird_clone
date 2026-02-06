@@ -6,6 +6,7 @@ public class PipeSpawner : MonoBehaviour
     public GameObject pipePrefab;
     public float spawnInterval = 2.0f;
     public float initialDelay = 0f;
+    public float spawnOffsetX = 5.0f;
     
     [Header("Height Variation")]
     public float minHeight = -1.0f;
@@ -13,7 +14,7 @@ public class PipeSpawner : MonoBehaviour
     
     private float timer = 0.0f;
     private LogicScript logic;
-    private bool hasStarted = false;
+   //private bool hasStarted = false;
 
     void Start()
     {
@@ -51,7 +52,7 @@ public class PipeSpawner : MonoBehaviour
     void SpawnPipe()
     {
         float randomHeight = Random.Range(minHeight, maxHeight);
-        Vector3 spawnPosition = new Vector3(transform.position.x, randomHeight, 0);
+        Vector3 spawnPosition = new Vector3(transform.position.x + spawnOffsetX, randomHeight, 0);
         Instantiate(pipePrefab, spawnPosition, Quaternion.identity);
     }
 }
