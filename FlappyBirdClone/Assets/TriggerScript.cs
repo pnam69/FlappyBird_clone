@@ -26,6 +26,12 @@ public class TriggerScript : MonoBehaviour
         {
             hasScored = true;
             logicScript.addScore(1);
+            
+            // Play score sound
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayScore();
+            }
         }
     }
 }

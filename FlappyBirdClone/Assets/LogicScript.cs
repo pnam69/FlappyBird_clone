@@ -52,6 +52,12 @@ public class LogicScript : MonoBehaviour
         
         isGameOver = true;
         
+        // Play game over sound
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayGameOver();
+        }
+        
         if (gameOverScreen != null)
         {
             gameOverScreen.SetActive(true);

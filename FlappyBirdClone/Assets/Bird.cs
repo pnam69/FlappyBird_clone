@@ -55,6 +55,12 @@ public class Bird : MonoBehaviour
     void Flap()
     {
         rb2d.linearVelocity = Vector2.up * flapStrength;
+        
+        // Play flap sound
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayFlap();
+        }
     }
 
     void UpdateRotation()
@@ -94,6 +100,12 @@ public class Bird : MonoBehaviour
         
         hasGameOverTriggered = true;
         isAlive = false;
+        
+        // Play hit sound
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayHit();
+        }
         
         if (logic != null)
         {
