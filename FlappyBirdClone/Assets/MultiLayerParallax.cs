@@ -125,16 +125,18 @@ public class MultiLayerParallax : MonoBehaviour
             
             obj.transform.position += Vector3.left * speed;
             
+            // Check if sprite's right edge has passed the despawn threshold
             SpriteRenderer spriteRenderer = obj.GetComponent<SpriteRenderer>();
-            float spriteRightEdge = obj.transform.position.x;
+            float checkPosition = obj.transform.position.x;
             if (spriteRenderer != null)
             {
-                spriteRightEdge = obj.transform.position.x + (spriteRenderer.bounds.size.x / 2f);
+                checkPosition = obj.transform.position.x + (spriteRenderer.bounds.size.x / 2f);
             }
             
-            if (spriteRightEdge < layer.despawnPosition)
+            if (checkPosition < layer.despawnPosition)
             {
                 float rightmostX = GetRightmostXInLayer(layer);
+                // Position based on transform position, not edge
                 obj.transform.position = new Vector3(
                     rightmostX + layer.layerWidth + layer.resetPosition,
                     obj.transform.position.y,
@@ -152,17 +154,10 @@ public class MultiLayerParallax : MonoBehaviour
         {
             if (obj == null) continue;
             
-            SpriteRenderer spriteRenderer = obj.GetComponent<SpriteRenderer>();
-            float objRightEdge = obj.transform.position.x;
-            
-            if (spriteRenderer != null)
+            // Use transform position for tighter packing
+            if (obj.transform.position.x > rightmostX)
             {
-                objRightEdge = obj.transform.position.x + (spriteRenderer.bounds.size.x / 2f);
-            }
-            
-            if (objRightEdge > rightmostX)
-            {
-                rightmostX = objRightEdge;
+                rightmostX = obj.transform.position.x;
             }
         }
         
