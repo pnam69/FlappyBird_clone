@@ -100,8 +100,18 @@ I've added two parallax scripts to your project:
    ```
 
 5. **Adjust Settings**
-   - Global Speed Multiplier: `1.0`
-   - Reset Threshold: `-20` (when sprite moves this far left, it resets to the right)
+   - **Global Speed Multiplier**: `1.0` (affects all layers proportionally)
+   - **Despawn Buffer**: `5.0` (how far past the left camera edge before teleporting)
+   - **Respawn Buffer**: `0.5` (extra spacing when respawning on the right)
+   
+   **What these do:**
+   - **Despawn Buffer**: Larger = sprites stay visible longer before teleporting (prevents early disappearance)
+   - **Respawn Buffer**: Adds gap between respawned sprite and the rightmost sprite (prevents overlap)
+   
+   **Recommended values:**
+   - For smooth seamless scrolling: Despawn Buffer = `5-10`, Respawn Buffer = `0-1`
+   - If you see gaps appearing: Reduce Respawn Buffer to `0` or negative values like `-0.5`
+   - If sprites disappear too early: Increase Despawn Buffer to `10-15`
 
 ### 🎯 Key Points:
 - ✅ **Each layer can have DIFFERENT numbers of objects** (2, 3, 4, etc.)
@@ -153,7 +163,8 @@ MultiLayerParallax Component:
 │       └── Scroll Speed: 3.0
 │
 ├── Global Speed Multiplier: 1.0
-└── Reset Threshold: -20
+├── Despawn Buffer: 5.0
+└── Respawn Buffer: 0.5
 ```
 
 ---
@@ -204,16 +215,21 @@ Global Speed Multiplier: 1.0
 - Measure your sprite width (select sprite → see Bounds in Inspector)
 - Position second sprite EXACTLY at first sprite's width
 - Example: If bounds.size.x = 19.2, place second sprite at X=19.2
+- **NEW**: Try adjusting `Respawn Buffer` - set to `0` or even negative (`-0.5`) for tighter gaps
 
-### Objects disappear:
-- Check `Reset Threshold` value (default: -20)
-- If your camera shows X > -20, objects might reset too early
-- Adjust threshold based on camera position
+### Objects disappear too early:
+- **Solution**: Increase `Despawn Buffer` from `5` to `10` or `15`
+- This gives sprites more buffer before they teleport
+- The script now calculates based on camera view automatically!
 
-### Objects teleport in view:
-- `Reset Threshold` is too high (sprites reset before leaving screen)
-- Make it more negative (e.g., -25 or -30)
-- Or add more sprites to each layer
+### Objects teleport/respawn in view:
+- **Solution**: Increase `Despawn Buffer` (sprites despawn too close to camera)
+- **Solution**: Reduce `Respawn Buffer` if gaps appear between tiles
+- The thresholds are now dynamic based on camera position
+
+### Gaps appear between respawned sprites:
+- **Solution**: Reduce `Respawn Buffer` to `0`, `-0.5`, or even `-1.0`
+- Negative values make sprites overlap slightly for seamless appearance
 
 ### Different layers have different numbers of sprites:
 - ✅ **This is totally fine!** Each layer is independent
