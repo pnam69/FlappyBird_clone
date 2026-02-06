@@ -14,8 +14,6 @@ public class MultiLayerParallax : MonoBehaviour
         public float scrollSpeed = 1.0f;
         
         [HideInInspector] public float layerWidth;
-        [HideInInspector] public float resetPosition;
-        [HideInInspector] public float despawnPosition;
     }
     
     [Header("Parallax Layers")]
@@ -24,26 +22,11 @@ public class MultiLayerParallax : MonoBehaviour
     [Header("Settings")]
     public float globalSpeedMultiplier = 1.0f;
     
-    [Header("Threshold Settings")]
-    [Tooltip("Extra distance beyond camera view before despawning (negative)")]
-    public float despawnBuffer = 5f;
-    
-    [Tooltip("Extra distance beyond rightmost sprite before respawning")]
-    public float respawnBuffer = 0.5f;
-    
     private LogicScript logic;
     private bool isGameOver = false;
-    private Camera mainCamera;
-    private float cameraLeftEdge;
 
     void Start()
     {
-        mainCamera = Camera.main;
-        if (mainCamera == null)
-        {
-            Debug.LogError("Main Camera not found! MultiLayerParallax requires a camera tagged 'MainCamera'.");
-        }
-        
         GameObject logicObject = GameObject.FindGameObjectWithTag("Logic");
         if (logicObject != null)
         {
@@ -51,7 +34,6 @@ public class MultiLayerParallax : MonoBehaviour
         }
         
         InitializeLayers();
-        CalculateThresholds();
     }
 
     void InitializeLayers()
@@ -74,26 +56,6 @@ public class MultiLayerParallax : MonoBehaviour
                     }
                 }
             }
-        }
-    }
-
-    void CalculateThresholds()
-    {
-        if (mainCamera != null)
-        {
-            float cameraHeight = mainCamera.orthographicSize * 2f;
-            float cameraWidth = cameraHeight * mainCamera.aspect;
-            cameraLeftEdge = mainCamera.transform.position.x - (cameraWidth / 2f);
-        }
-        else
-        {
-            cameraLeftEdge = -10f;
-        }
-        
-        foreach (ParallaxLayer layer in layers)
-        {
-            layer.despawnPosition = cameraLeftEdge - despawnBuffer;
-            layer.resetPosition = respawnBuffer;
         }
     }
 
@@ -125,20 +87,13 @@ public class MultiLayerParallax : MonoBehaviour
             
             obj.transform.position += Vector3.left * speed;
             
-            // Check if sprite's right edge has passed the despawn threshold
-            SpriteRenderer spriteRenderer = obj.GetComponent<SpriteRenderer>();
-            float checkPosition = obj.transform.position.x;
-            if (spriteRenderer != null)
-            {
-                checkPosition = obj.transform.position.x + (spriteRenderer.bounds.size.x / 2f);
-            }
+            // Simple check: if object has moved one full width to the left, teleport it to the right
+            float rightmostX = GetRightmostXInLayer(layer, obj);
             
-            if (checkPosition < layer.despawnPosition)
+            if (obj.transform.position.x < rightmostX - layer.layerWidth)
             {
-                float rightmostX = GetRightmostXInLayer(layer);
-                // Position based on transform position, not edge
                 obj.transform.position = new Vector3(
-                    rightmostX + layer.layerWidth + layer.resetPosition,
+                    rightmostX + layer.layerWidth,
                     obj.transform.position.y,
                     obj.transform.position.z
                 );
@@ -146,15 +101,14 @@ public class MultiLayerParallax : MonoBehaviour
         }
     }
 
-    float GetRightmostXInLayer(ParallaxLayer layer)
+    float GetRightmostXInLayer(ParallaxLayer layer, GameObject excludeObject)
     {
         float rightmostX = float.MinValue;
         
         foreach (GameObject obj in layer.layerObjects)
         {
-            if (obj == null) continue;
+            if (obj == null || obj == excludeObject) continue;
             
-            // Use transform position for tighter packing
             if (obj.transform.position.x > rightmostX)
             {
                 rightmostX = obj.transform.position.x;
