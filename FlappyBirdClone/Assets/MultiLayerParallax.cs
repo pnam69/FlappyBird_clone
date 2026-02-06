@@ -81,16 +81,24 @@ public class MultiLayerParallax : MonoBehaviour
         
         float speed = layer.scrollSpeed * globalSpeedMultiplier * Time.deltaTime;
         
+        // Move all objects
+        foreach (GameObject obj in layer.layerObjects)
+        {
+            if (obj == null) continue;
+            obj.transform.position += Vector3.left * speed;
+        }
+        
+        // Check for looping after all objects have moved
+        float rightmostX = GetRightmostXInLayer(layer);
+        float leftmostX = GetLeftmostXInLayer(layer);
+        
         foreach (GameObject obj in layer.layerObjects)
         {
             if (obj == null) continue;
             
-            obj.transform.position += Vector3.left * speed;
-            
-            // Simple check: if object has moved one full width to the left, teleport it to the right
-            float rightmostX = GetRightmostXInLayer(layer, obj);
-            
-            if (obj.transform.position.x < rightmostX - layer.layerWidth)
+            // If this object is the leftmost and it's far enough left, teleport it to the right
+            if (obj.transform.position.x <= leftmostX && 
+                obj.transform.position.x < rightmostX - layer.layerWidth)
             {
                 obj.transform.position = new Vector3(
                     rightmostX + layer.layerWidth,
@@ -101,13 +109,13 @@ public class MultiLayerParallax : MonoBehaviour
         }
     }
 
-    float GetRightmostXInLayer(ParallaxLayer layer, GameObject excludeObject)
+    float GetRightmostXInLayer(ParallaxLayer layer)
     {
         float rightmostX = float.MinValue;
         
         foreach (GameObject obj in layer.layerObjects)
         {
-            if (obj == null || obj == excludeObject) continue;
+            if (obj == null) continue;
             
             if (obj.transform.position.x > rightmostX)
             {
@@ -116,5 +124,22 @@ public class MultiLayerParallax : MonoBehaviour
         }
         
         return rightmostX;
+    }
+
+    float GetLeftmostXInLayer(ParallaxLayer layer)
+    {
+        float leftmostX = float.MaxValue;
+        
+        foreach (GameObject obj in layer.layerObjects)
+        {
+            if (obj == null) continue;
+            
+            if (obj.transform.position.x < leftmostX)
+            {
+                leftmostX = obj.transform.position.x;
+            }
+        }
+        
+        return leftmostX;
     }
 }
