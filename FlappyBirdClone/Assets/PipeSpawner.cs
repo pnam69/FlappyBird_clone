@@ -9,8 +9,8 @@ public class PipeSpawner : MonoBehaviour
     public float spawnOffsetX = 5.0f;
     
     [Header("Height Variation")]
-    public float minHeight = -1.0f;
-    public float maxHeight = 3.0f;
+    public float minHeight = -0.5f;
+    public float maxHeight = 3f;
     
     private float timer = 0.0f;
     private LogicScript logic;

@@ -14,8 +14,8 @@ public class Bird : MonoBehaviour
     public float minTiltAngle = -40f;
     
     [Header("Bounds")]
-    public float deathZoneY = -10f;
-    public float ceilingY = 10f;
+    public float deathZoneY = -30f;
+    public float ceilingY = 30f;
     
     private LogicScript logic;
     private bool isAlive = true;
