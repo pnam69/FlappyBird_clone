@@ -10,6 +10,8 @@ public class SimpleStartScreen : MonoBehaviour
     private bool gameStarted = false;
     private GameObject bird;
     private Rigidbody2D birdRb;
+    private PipeSpawner pipeSpawner;
+    private PipeMove[] allPipes;
 
     void Start()
     {
@@ -23,6 +25,20 @@ public class SimpleStartScreen : MonoBehaviour
                 birdRb.gravityScale = 0; // Disable gravity
                 birdRb.linearVelocity = Vector2.zero;
             }
+        }
+        
+        // Find and disable pipe spawner
+        pipeSpawner = FindObjectOfType<PipeSpawner>();
+        if (pipeSpawner != null)
+        {
+            pipeSpawner.enabled = false;
+        }
+        
+        // Find and disable all existing pipes
+        allPipes = FindObjectsOfType<PipeMove>();
+        foreach (PipeMove pipe in allPipes)
+        {
+            pipe.enabled = false;
         }
         
         // Hide score until game starts
@@ -76,14 +92,29 @@ public class SimpleStartScreen : MonoBehaviour
         // Enable bird gravity
         if (birdRb != null)
         {
-            birdRb.gravityScale = 2.7f; // Adjust to match your game
+            birdRb.gravityScale = 5f; // Adjust to match your game
+        }
+        
+        // Enable pipe spawner
+        if (pipeSpawner != null)
+        {
+            pipeSpawner.enabled = true;
+        }
+        
+        // Enable all pipes
+        foreach (PipeMove pipe in allPipes)
+        {
+            if (pipe != null)
+            {
+                pipe.enabled = true;
+            }
         }
         
         // Reset score display
         if (scoreText != null)
         {
             scoreText.text = "0";
-            scoreText.fontSize = 50; // Back to normal size
+            scoreText.fontSize = 150; // Back to normal size
         }
     }
 }
