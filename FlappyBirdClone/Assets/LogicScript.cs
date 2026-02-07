@@ -43,6 +43,13 @@ public class LogicScript : MonoBehaviour
     public void restartGame()
     {
         Time.timeScale = 1f;
+        
+        // Fade music back in
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.FadeInMusic();
+        }
+        
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 

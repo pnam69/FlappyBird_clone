@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class AudioManager : MonoBehaviour
 {
@@ -29,6 +30,10 @@ public class AudioManager : MonoBehaviour
     
     [Header("Settings")]
     public bool playMusicOnStart = true;
+    public float musicFadeDuration = 1.5f;
+    
+    private float targetMusicVolume;
+    private Coroutine fadeCoroutine;
 
     void Awake()
     {
@@ -45,6 +50,7 @@ public class AudioManager : MonoBehaviour
         }
         
         SetupAudioSources();
+        targetMusicVolume = musicVolume;
     }
 
     void Start()
@@ -77,16 +83,14 @@ public class AudioManager : MonoBehaviour
 
     void Update()
     {
-        // Update volumes in real-time
+        // Update SFX volume in real-time
         if (sfxSource != null)
         {
             sfxSource.volume = sfxVolume;
         }
         
-        if (musicSource != null)
-        {
-            musicSource.volume = musicVolume;
-        }
+        // Update target music volume (actual fading handled by coroutine)
+        targetMusicVolume = musicVolume;
     }
 
     // Play sound effect
@@ -105,6 +109,13 @@ public class AudioManager : MonoBehaviour
         {
             musicSource.clip = clip;
             musicSource.Play();
+            
+            // Fade in music
+            if (fadeCoroutine != null)
+            {
+                StopCoroutine(fadeCoroutine);
+            }
+            fadeCoroutine = StartCoroutine(FadeMusicTo(musicVolume, musicFadeDuration));
         }
     }
 
@@ -112,6 +123,56 @@ public class AudioManager : MonoBehaviour
     public void StopMusic()
     {
         if (musicSource != null)
+        {
+            musicSource.Stop();
+        }
+    }
+
+    // Fade out music (for game over)
+    public void FadeOutMusic()
+    {
+        if (fadeCoroutine != null)
+        {
+            StopCoroutine(fadeCoroutine);
+        }
+        fadeCoroutine = StartCoroutine(FadeMusicTo(0f, musicFadeDuration));
+    }
+
+    // Fade in music (for restart/new game)
+    public void FadeInMusic()
+    {
+        if (musicSource != null && !musicSource.isPlaying && backgroundMusic != null)
+        {
+            musicSource.Play();
+        }
+        
+        if (fadeCoroutine != null)
+        {
+            StopCoroutine(fadeCoroutine);
+        }
+        fadeCoroutine = StartCoroutine(FadeMusicTo(musicVolume, musicFadeDuration));
+    }
+
+    // Coroutine to fade music volume
+    private IEnumerator FadeMusicTo(float targetVolume, float duration)
+    {
+        if (musicSource == null) yield break;
+        
+        float startVolume = musicSource.volume;
+        float elapsed = 0f;
+        
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            musicSource.volume = Mathf.Lerp(startVolume, targetVolume, t);
+            yield return null;
+        }
+        
+        musicSource.volume = targetVolume;
+        
+        // Stop music completely if faded to 0
+        if (targetVolume <= 0.01f && musicSource.isPlaying)
         {
             musicSource.Stop();
         }
@@ -136,5 +197,6 @@ public class AudioManager : MonoBehaviour
     public void PlayGameOver()
     {
         PlaySFX(gameOverSound);
+        FadeOutMusic();
     }
 }
