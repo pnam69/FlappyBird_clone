@@ -4,8 +4,9 @@ using UnityEngine.InputSystem;
 
 public class SimpleStartScreen : MonoBehaviour
 {
-    [Header("Simple Setup - Just assign your Score Text")]
+    [Header("UI References")]
     public Text scoreText;
+    public GameObject startScreenUI;
     
     private bool gameStarted = false;
     private GameObject bird;
@@ -28,14 +29,14 @@ public class SimpleStartScreen : MonoBehaviour
         }
         
         // Find and disable pipe spawner
-        pipeSpawner = FindObjectOfType<PipeSpawner>();
+        pipeSpawner = Object.FindFirstObjectByType<PipeSpawner>();
         if (pipeSpawner != null)
         {
             pipeSpawner.enabled = false;
         }
         
         // Find and disable all existing pipes
-        allPipes = FindObjectsOfType<PipeMove>();
+        allPipes = Object.FindObjectsByType<PipeMove>(FindObjectsSortMode.None);
         foreach (PipeMove pipe in allPipes)
         {
             pipe.enabled = false;
@@ -47,8 +48,11 @@ public class SimpleStartScreen : MonoBehaviour
             scoreText.enabled = false;
         }
         
-        // Show instructions on score text position
-        ShowStartMessage();
+        // Show start screen
+        if (startScreenUI != null)
+        {
+            startScreenUI.SetActive(true);
+        }
     }
 
     void Update()
@@ -75,19 +79,21 @@ public class SimpleStartScreen : MonoBehaviour
         }
     }
 
-    void ShowStartMessage()
-    {
-        if (scoreText != null)
-        {
-            scoreText.enabled = true;
-            scoreText.text = "Press Any Key to Start";
-            scoreText.fontSize = 30;
-        }
-    }
-
     void StartGame()
     {
         gameStarted = true;
+        
+        // Hide start screen
+        if (startScreenUI != null)
+        {
+            startScreenUI.SetActive(false);
+        }
+        
+        // Show score
+        if (scoreText != null)
+        {
+            scoreText.enabled = true;
+        }
         
         // Enable bird gravity
         if (birdRb != null)
@@ -109,12 +115,6 @@ public class SimpleStartScreen : MonoBehaviour
                 pipe.enabled = true;
             }
         }
-        
-        // Reset score display
-        if (scoreText != null)
-        {
-            scoreText.text = "0";
-            scoreText.fontSize = 150; // Back to normal size
-        }
     }
 }
+
