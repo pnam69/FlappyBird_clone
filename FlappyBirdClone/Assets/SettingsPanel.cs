@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
-using UnityEngine.EventSystems;
 
 public class SettingsPanel : MonoBehaviour
 {
@@ -51,7 +50,7 @@ public class SettingsPanel : MonoBehaviour
 
     void Update()
     {
-        // Toggle settings with Escape key (using new Input System)
+        // Toggle settings with Escape key
         if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
             ToggleSettings();
@@ -135,11 +134,5 @@ public class SettingsPanel : MonoBehaviour
         {
             musicVolumeText.text = Mathf.RoundToInt(AudioManager.Instance.musicVolume * 100) + "%";
         }
-    }
-    
-    // Check if pointer is over UI element
-    public bool IsPointerOverUI()
-    {
-        return EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
     }
 }

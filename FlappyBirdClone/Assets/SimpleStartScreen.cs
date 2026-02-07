@@ -60,26 +60,29 @@ public class SimpleStartScreen : MonoBehaviour
     {
         if (!gameStarted)
         {
-            // Don't start game if clicking on UI
-            bool isOverUI = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
-            
-            // Check for keyboard input (but not if clicking UI)
-            if (Keyboard.current != null && Keyboard.current.anyKey.wasPressedThisFrame && !isOverUI)
+            // Check for keyboard input (keyboards don't interact with UI)
+            if (Keyboard.current != null && Keyboard.current.anyKey.wasPressedThisFrame)
             {
                 StartGame();
+                return;
             }
             
-            // Check for mouse input (but not if over UI)
-            if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame && !isOverUI)
+            // Check for mouse input - only block if over UI
+            if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
             {
-                StartGame();
+                bool isOverUI = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
+                if (!isOverUI)
+                {
+                    StartGame();
+                }
+                return;
             }
             
-            // Check for touch input (but not if over UI)
+            // Check for touch input - only block if over UI
             if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
             {
-                // For touch, check if touching UI
-                if (EventSystem.current == null || !EventSystem.current.IsPointerOverGameObject(0))
+                bool isOverUI = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject(0);
+                if (!isOverUI)
                 {
                     StartGame();
                 }
