@@ -100,8 +100,6 @@ public class SettingsPanel : MonoBehaviour
             AudioManager.Instance.sfxVolume = value;
             UpdateVolumeText();
             
-            // Play a test sound
-            AudioManager.Instance.PlayFlap();
         }
     }
 
