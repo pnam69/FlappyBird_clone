@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 
 public class SimpleStartScreen : MonoBehaviour
 {
@@ -36,9 +37,25 @@ public class SimpleStartScreen : MonoBehaviour
 
     void Update()
     {
-        if (!gameStarted && Input.anyKeyDown)
+        if (!gameStarted)
         {
-            StartGame();
+            // Check for keyboard input
+            if (Keyboard.current != null && Keyboard.current.anyKey.wasPressedThisFrame)
+            {
+                StartGame();
+            }
+            
+            // Check for mouse input
+            if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
+            {
+                StartGame();
+            }
+            
+            // Check for touch input (mobile)
+            if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
+            {
+                StartGame();
+            }
         }
     }
 
@@ -59,7 +76,7 @@ public class SimpleStartScreen : MonoBehaviour
         // Enable bird gravity
         if (birdRb != null)
         {
-            birdRb.gravityScale = 3; // Adjust to match your game
+            birdRb.gravityScale = 2.7f; // Adjust to match your game
         }
         
         // Reset score display
